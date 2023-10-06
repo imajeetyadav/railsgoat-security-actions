@@ -1,6 +1,9 @@
 name: Rails Test and Scan
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
