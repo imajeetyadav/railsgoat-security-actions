@@ -10,7 +10,6 @@ on:
 
 jobs:
   build-and-run-docker:
-    needs: test
     runs-on: ubuntu-latest
 
     steps:
@@ -27,7 +26,6 @@ jobs:
         sleep 30  # Adjust this as needed
 
   brakeman:
-    needs: test
     runs-on: ubuntu-latest
 
     steps:
