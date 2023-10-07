@@ -65,7 +65,7 @@ jobs:
     - name: Test
       run: |
         docker ps -al
-        sleep 30
+        sleep 120s
         curl http://localhost:3000
       
     - name: OWASP ZAP Scan
