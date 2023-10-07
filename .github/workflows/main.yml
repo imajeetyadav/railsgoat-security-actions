@@ -9,24 +9,24 @@ on:
       - main
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
+  # build-and-push:
+  #   runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v2
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #   - name: Login to Docker Hub
+  #     uses: docker/login-action@v3
+  #     with:
+  #       username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #       password: ${{ secrets.DOCKERHUB_TOKEN }}
         
-    - name: Build and push
-      uses: docker/build-push-action@v5
-      with:
-        push: true
-        tags: imajeetyadav/my-rails-app:latest
+  #   - name: Build and push
+  #     uses: docker/build-push-action@v5
+  #     with:
+  #       push: true
+  #       tags: imajeetyadav/my-rails-app:latest
 
   # brakeman:
   #   runs-on: ubuntu-latest
@@ -55,12 +55,15 @@ jobs:
     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   owasp-zap:
-    needs: build-and-push
+    # needs: build-and-push
     runs-on: ubuntu-latest
 
     steps:
     - name: Run Application
       run: docker run -d -p 3000:3000 imajeetyadav/my-rails-app:latest
+
+    - name: Test
+      run: curl http://localhost:3000
       
     - name: OWASP ZAP Scan
       uses: zaproxy/action-full-scan@v0.7.0
