@@ -9,63 +9,71 @@ on:
       - main
 
 jobs:
-  build-and-run-docker:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Build and run Docker container
-      run: |
-        docker build -t my-rails-app .
-        docker run -d -p 3000:3000 my-rails-app
-
-    - name: Wait for Rails to start
-      run: |
-        sleep 30  # Adjust this as needed
-
-  brakeman:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Brakeman Scan
-      run: |
-        gem install brakeman
-        brakeman -o brakeman-output.json
-
-    - name: Create Issue if Vulnerabilities Found
-      if: always()
-      uses: octokit/request-action@v2.x
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
       with:
-        route: POST /repos/${{ github.repository }}/issues
-        title: Brakeman Vulnerabilities Found
-        body: |
-          Brakeman vulnerabilities were found. Please review the `brakeman-output.json` file for details.
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        push: true
+        tags: imajeetyadav/my-rails-app:latest
+
+  # brakeman:
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v2
+    
+  #   - name: Run Application
+  #     run: docker run -d -p 3000:3000 imajeetyadav/my-rails-app:latest
+      
+  #   - name: Brakeman Scan
+  #     run: |
+  #       gem install brakeman
+  #       brakeman -o brakeman-output.json
+
+    # - name: Create Issue if Vulnerabilities Found
+    #   if: always()
+    #   uses: octokit/request-action@v2.x
+    #   with:
+    #     route: POST /repos/${{ github.repository }}/issues
+    #     title: Brakeman Vulnerabilities Found
+    #     body: |
+    #       Brakeman vulnerabilities were found. Please review the `brakeman-output.json` file for details.
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   owasp-zap:
-    needs: build-and-run-docker
+    needs: build-and-push
     runs-on: ubuntu-latest
 
     steps:
+    - name: Run Application
+      run: docker run -d -p 3000:3000 imajeetyadav/my-rails-app:latest
+      
     - name: OWASP ZAP Scan
       uses: zaproxy/action-full-scan@v0.7.0
       with:
         target: 'http://localhost:3000'
 
-    - name: Create Issue if Vulnerabilities Found
-      if: always()
-      uses: octokit/request-action@v2.x
-      with:
-        route: POST /repos/${{ github.repository }}/issues
-        title: OWASP ZAP Vulnerabilities Found
-        body: |
-          OWASP ZAP vulnerabilities were found. Please review the scan results for details.
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+    # - name: Create Issue if Vulnerabilities Found
+    #   if: always()
+    #   uses: octokit/request-action@v2.x
+    #   with:
+    #     route: POST /repos/${{ github.repository }}/issues
+    #     title: OWASP ZAP Vulnerabilities Found
+    #     body: |
+    #       OWASP ZAP vulnerabilities were found. Please review the scan results for details.
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
