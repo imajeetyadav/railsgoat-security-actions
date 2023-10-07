@@ -63,7 +63,9 @@ jobs:
       run: docker run -d -p 3000:3000 imajeetyadav/my-rails-app:latest
 
     - name: Test
-      run: curl http://localhost:3000
+      run: |
+        docker ps -al
+        curl http://localhost:3000
       
     - name: OWASP ZAP Scan
       uses: zaproxy/action-full-scan@v0.7.0
