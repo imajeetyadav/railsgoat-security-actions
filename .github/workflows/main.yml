@@ -60,7 +60,7 @@ jobs:
 
     steps:
     - name: Run Application
-      run: docker run -d -p 3000:3000 imajeetyadav/my-rails-app:latest my-rails
+      run: docker run -d -p 3000:3000 --name my-rails imajeetyadav/my-rails-app:latest 
 
     - name: Test
       run: |
